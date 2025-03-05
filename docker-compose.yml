@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  django:
+    build: andromeda
+    container_name: django_app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - INDEX_NAME=apod
+    depends_on:
+      - elasticsearch
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  index_data:
+    build: .
+    container_name: index_data
+    environment:
+      - INDEX_NAME=apod
+    depends_on:
+      - elasticsearch
+    command: ["python", "index_data.py"]
+
