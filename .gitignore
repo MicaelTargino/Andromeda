@@ -1,1 +1,13 @@
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment files
 venv 
+*.env
+.env
+
+# SQLite DB
+*.sqlite3
+db.sqlite3
