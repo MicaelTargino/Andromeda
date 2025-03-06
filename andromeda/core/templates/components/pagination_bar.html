@@ -1,0 +1,113 @@
+{% load static %}
+
+<div class="container">
+  <div class="gallery_grid">
+    {% for item in search_results.results %}
+      <div class="gallery_card">
+        <div class="card_content">
+          <div class="image_container" onclick="showImage('{{ item._source.image_url }}', '{{ item._source.title }}', '{{ item._source.explanation }}', '{{ item._source.date }}')">
+            <div class="image_loader" style="display: block;"></div>
+            <img src="{{ item._source.image_url }}" alt="{{ item._source.title }}" class="card_image" onload="this.previousElementSibling.style.display='none'; this.classList.add('image-loaded');" />
+          </div>
+          <div class="text_container">
+            <h2 class="card_title">{{ item._source.title }}</h2>
+            <p class="card_description">{{ item._source.explanation }}</p>
+            <span class="card_date">{{ item._source.date }}</span>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="pagination_buttons">
+  <button onclick="goToPreviousPage()" {% if search_results.current_page == 1 %}disabled{% endif %}>&laquo; Previous</button>
+  <span>{{ search_results.current_page }} / {{ search_results.total_pages }}</span>
+  <button onclick="goToNextPage()" {% if search_results.current_page == search_results.total_pages %}disabled{% endif %}>Next &raquo;</button>
+</div>
+
+<div id="image-popover" class="popover" style="display: none;">
+  <div class="popover-content">
+    <div class="button-container">
+      <span class="close" onclick="closePopover()">&times;</span>
+    </div>
+    <img id="popover-image" src="" alt="" class="popover-image" onclick="event.stopPropagation()" />
+    <h2 id="popover-title"></h2>
+    <p id="popover-description"></p>
+    <span id="popover-date"></span>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape" && document.getElementById("image-popover").style.display === "block") {
+      closePopover();
+    }
+  });
+
+  function showImage(imageUrl, title, explanation, date) {
+    const popover = document.getElementById("image-popover");
+    document.getElementById("popover-image").src = imageUrl;
+    document.getElementById("popover-title").innerText = title;
+    document.getElementById("popover-description").innerText = explanation;
+    document.getElementById("popover-date").innerText = date;
+    popover.style.display = "block";
+  }
+
+  function closePopover() {
+    document.getElementById("image-popover").style.display = "none";
+  }
+
+  function goToPreviousPage() {
+    const currentPage = {{ search_results.current_page }};
+    if (currentPage > 1) {
+      window.location.href = `?page=${currentPage - 1}`;
+    }
+  }
+
+  function goToNextPage() {
+    const currentPage = {{ search_results.current_page }};
+    const totalPages = {{ search_results.total_pages }};
+    if (currentPage < totalPages) {
+      window.location.href = `?page=${currentPage + 1}`;
+    }
+  }
+</script>
+
+<style>
+  .container {
+    margin-top: 1rem;
+    margin-bottom: 5rem;
+  }
+
+  .gallery_grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin: 4 auto;
+  }
+
+  .pagination_buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .pagination_buttons button {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid rgba(234, 94, 19, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .pagination_buttons button:hover:not(:disabled) {
+    background: rgba(234, 94, 19, 0.1);
+  }
+
+  .pagination_buttons button:disabled {
+    cursor: not-allowed;
+    color: #666;
+  }
+</style>

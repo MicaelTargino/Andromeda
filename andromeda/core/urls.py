@@ -1,5 +1,6 @@
 from django.urls import path 
-from .views import search
+from .views import search, homepage
 urlpatterns = [
-    path('api/v1/search/<str:search_query>/<int:skip>/<int:limit>', search, name="search")
+    path('', homepage, name="homepage"),
+    path('search', search, name="search")
 ]

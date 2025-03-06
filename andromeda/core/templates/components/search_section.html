@@ -1,0 +1,399 @@
+{% load static %}
+
+<div class="container">
+  <a href="/" class="image-container">
+    <img src="{% static 'core/galaxy_logo_white.svg' %}" class="image-logo" alt="My Universe Hub logo" />
+  </a>
+
+  {% if error_message %}
+    <div class="error-message small-text">{{ error_message }}</div>
+  {% endif %}
+
+  <form method="GET" action="/search" id="search-form" class="search-container">
+    <input type="text" name="search_query" id="search_query" class="input-text medium-text" placeholder="Andromeda galaxy" value="{{ search_query }}" />
+    <input type="hidden" name="skip" value="0" />
+    <input type="hidden" name="limit" value="10" />
+    {% comment %} <span class="icon-container">
+        {% if search_query %}
+            <i id="clean-search" class="fas fa-times clear-icon" title="Clear search"></i>
+        {% endif %}
+    </span> {% endcomment %}
+  </form>
+
+  {% if search_results %}
+    <div class="gallery_grid">
+      {% for item in search_results %}
+        <div class="gallery_card">
+          <div class="card_content">
+            <div class="image_container" onclick="showImage('{{ item.source.image_url }}', '{{ item.source.title }}', '{{ item.source.explanation }}', '{{ item.source.date }}')">
+              <div class="image_loader" style="display: block;"></div>
+              <img src="{{ item.source.image_url }}" alt="{{ item.source.title }}" class="card_image" onload="this.previousElementSibling.style.display='none'; this.classList.add('image-loaded');" />
+            </div>
+            <div class="text_container">
+              <h2 class="card_title">{{ item.source.title }}</h2>
+              <p class="card_description">{{ item.source.explanation }}</p>
+              <span class="card_date">{{ item.source.date }}</span>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="no-results-message medium-text">
+      <i class="fas fa-search"></i> No results found.
+    </div>
+  {% endif %}
+</div>
+
+<div id="image-popover" class="popover" style="display: none;">
+  <div class="popover-content">
+    <div class="button-container">
+      <span class="close" onclick="closePopover()">&times;</span>
+    </div>
+    <img id="popover-image" src="" alt="" class="popover-image" onclick="event.stopPropagation()" />
+    <h2 id="popover-title"></h2>
+    <p id="popover-description"></p>
+    <span id="popover-date"></span>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape" && document.getElementById("image-popover").style.display === "block") {
+      closePopover();
+    }
+  });
+
+  function showImage(imageUrl, title, explanation, date) {
+    const popover = document.getElementById("image-popover");
+    document.getElementById("popover-image").src = imageUrl;
+    document.getElementById("popover-title").innerText = title;
+    document.getElementById("popover-description").innerText = explanation;
+    document.getElementById("popover-date").innerText = date;
+    popover.style.display = "block";
+  }
+
+  function closePopover() {
+    document.getElementById("image-popover").style.display = "none";
+  }
+
+  function goToPreviousPage() {
+    const currentPage = {{ search_results.current_page }};
+    if (currentPage > 1) {
+      window.location.href = `?page=${currentPage - 1}`;
+    }
+  }
+
+  function goToNextPage() {
+    const currentPage = {{ search_results.current_page }};
+    const totalPages = {{ search_results.total_pages }};
+    if (currentPage < totalPages) {
+      window.location.href = `?page=${currentPage + 1}`;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    function clearSearch() {
+      alert("Clear search called"); // Debugging: Ensure this alert is shown
+      window.location.href = '/';
+    }
+
+    // Attach the clearSearch function to the clear icon
+    const clearSearchButton = document.getElementById("clean-search");
+    console.log(clearSearchButton)
+    if (clearSearchButton) {
+      clearSearchButton.addEventListener("click", clearSearch);
+    }
+  });
+
+</script>
+
+<style>
+  .container {
+    margin-top: 12rem;
+  }
+  
+  .image-container {
+    display: block;
+    width: 15rem;
+    margin-bottom: 10rem;
+  }
+  
+  .image-logo {
+    display: block;
+    width: 100%;
+  }
+  
+  .search-container {
+    width: 100%;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .icon-container {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  
+  .clear-icon {
+    cursor: pointer;
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+    font-size: 3rem;
+  }
+  
+  .clear-icon:hover {
+    color: #666;
+  }
+  
+  .input-text {
+    width: 100%;
+    height: 4rem;
+    border-radius: 1rem;
+    border-color: #ececec;
+    background-color: #1e1e1e;
+    padding: 8px;
+    color: #ececec;
+  }
+  
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  
+  .fade-enter-to,
+  .fade-leave-from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .error-message {
+    margin-bottom: 0.3rem;
+    color: rgb(255, 58, 58);
+    padding-left: 0.75rem;
+    align-self: flex-start;
+  }
+  
+  .no-results-message {
+    margin-top: 2rem;
+    text-align: center;
+    color: #666;
+  }
+  
+  .no-results-message i {
+    margin-right: 0.5rem;
+  }
+  
+  @media screen and (max-width: 1920px) {
+    .container {
+      margin-top: 10rem;
+    }
+    
+    .image-container {
+      width: 10rem;
+      margin-bottom: 6rem;
+    }
+  
+    .input-text {
+      height: 4rem;
+    }
+  
+    .icon-container {
+      right: 1rem;
+    }
+  
+    .clear-icon {
+      font-size: 2rem;
+    }
+  }
+  
+  @media screen and (max-width: 1440px) {
+    .container {
+      margin-top: 9rem;
+    }
+    
+    .image-container {
+      width: 10rem;
+      margin-bottom: 5rem;
+    }
+  }
+  
+  @media screen and (max-width: 992px) {
+    .container {
+      margin-top: 8rem;
+    }
+    
+    .image-container {
+      width: 7rem;
+    }
+    
+    .input-text {
+      height: 3rem;
+    }
+  
+    .icon-container {
+      right: 0.625rem;
+    }
+  
+    .clear-icon {
+      font-size: 1.5rem;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .container {
+      margin-top: 6rem;
+    }
+    
+    .image-container {
+      width: 5rem;
+      margin-bottom: 4rem;
+    }
+  }
+  
+  @media screen and (max-width: 576px) {
+    .image-container {
+      width: 4rem;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .container {
+      margin-top: 5rem;
+    }
+  
+    .image-container {
+      width: 3rem;
+      margin-bottom: 3rem;
+    }
+  
+    .input-text {
+      height: 3rem;
+    }
+  }
+  .gallery_grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin: 4rem auto !important;
+  }
+  
+  .gallery_card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(234, 94, 19, 0.2);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .gallery_card:hover {
+    transform: translateY(-0.5rem);
+    box-shadow: 0 0.5rem 1.25rem rgba(234, 94, 19, 0.2);
+  }
+  
+  .card_content {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .image_container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  
+  .card_image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  .card_image.image-loaded {
+    opacity: 1;
+  }
+  
+  .gallery_card:hover .card_image {
+    transform: scale(1.05);
+  }
+  
+  .text_container {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  .card_title {
+    color: var(--primary-color);
+    margin: 0 0 1rem 0rem;
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .card_description {
+    color: #fff;
+    margin: 0;
+    line-height: 1.75;
+    flex-grow: 1;
+    font-size: 1rem;
+  }
+  
+  .card_date {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    margin-top: 1rem;
+    align-self: flex-end;
+  }
+  
+  .image_loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(234, 94, 19, 0.1) 50%,
+      rgba(255, 255, 255, 0.05) 75%
+    );
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+  }
+  
+  @keyframes loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .gallery_grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .image_container {
+      height: auto;
+    }
+  }
+</style>

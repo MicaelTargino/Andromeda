@@ -1,0 +1,32 @@
+{% extends 'app.html' %}  <!-- Extends the base app template -->
+{% load static %}
+{% block content %}
+    <!-- Render the SearchSection Component -->
+    {% include 'components/search_section.html' %}
+    {% comment %} <div class="search-section">
+        <h2>Search Section</h2>
+        <!-- The logic for handling search should go here -->
+        <input type="text" id="search-input" placeholder="Search..." />
+        <button id="search-button">Search</button>
+    </div> {% endcomment %}
+
+    <!-- Render the GallerySection Component -->
+    {% include 'components/gallery_section.html' %}
+
+    {% comment %} <div class="gallery-section">
+        <h2>Gallery</h2>
+        <!-- The gallery content should be dynamically populated here -->
+        <div id="gallery">
+            <!-- Example gallery item -->
+            <div class="gallery-item">Image 1</div>
+            <div class="gallery-item">Image 2</div>
+            <div class="gallery-item">Image 3</div>
+        </div>
+    </div> {% endcomment %}
+
+    <!-- Render the BackToTop Component -->
+    {% include 'components/back_to_top.html' %}
+    {% comment %} <button id="back-to-top" class="action-button">
+        ↑
+    </button> {% endcomment %}
+{% endblock %}

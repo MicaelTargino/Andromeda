@@ -1,0 +1,66 @@
+{% load static %}
+<div class="stars-container" id="stars-container"></div>
+
+<style>
+    .stars-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: #080e1a;
+        overflow: hidden;
+        z-index: -1;
+    }
+
+    .star {
+        position: absolute;
+        border-radius: 50%;
+        animation: moveUpward linear infinite;
+    }
+
+    @keyframes moveUpward {
+        from {
+            transform: translateY(100vh);
+        }
+        to {
+            transform: translateY(-100vh);
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const numberOfStars = 50;
+        const starColors = ["#00b4ff", "#ffffff"];
+        const starsContainer = document.getElementById("stars-container");
+
+        function generateStars() {
+            for (let i = 0; i < numberOfStars; i++) {
+                const duration = Math.random() * 40 + 20; // Random duration between 20-60s
+                const star = document.createElement("div");
+                const starSize = Math.random() * 3.5 + 0.5;
+                const opacity = Math.random() * 0.3 + 0.7;
+                const delay = -Math.random() * duration; // Negative delay to start midway
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const color = starColors[Math.floor(Math.random() * starColors.length)];
+
+                star.classList.add("star");
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
+                star.style.width = `${starSize}px`;
+                star.style.height = `${starSize}px`;
+                star.style.opacity = opacity;
+                star.style.transform = `translateY(${Math.random() * 100}px)`;
+                star.style.animationDuration = `${duration}s`;
+                star.style.animationDelay = `${delay}s`;
+                star.style.backgroundColor = color;
+
+                starsContainer.appendChild(star);
+            }
+        }
+
+        generateStars();
+    });
+</script>
